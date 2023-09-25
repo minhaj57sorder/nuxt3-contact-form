@@ -2,6 +2,20 @@
   <div
     class="px-6 py-6 lg:px-8 border border-cyan-700 shadow-xl bg-cyan-800/10 rounded-lg backdrop-blur-[10px]"
   >
+    <div
+      v-if="errorresponse"
+      class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50"
+      role="alert"
+    >
+      <span class="font-medium">Error!</span> {{ errorresponse }}
+    </div>
+    <div
+      v-if="successresponseMessage"
+      class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50"
+      role="alert"
+    >
+      <span class="font-medium">Success !</span> {{ successresponseMessage }}
+    </div>
     <form @submit="submitHandler">
       <div class="mb-6">
         <label
@@ -163,6 +177,8 @@ import { VueTelInput } from "vue-tel-input";
 import "vue-tel-input/vue-tel-input.css";
 
 const phoneNumber = ref("");
+const errorresponse = ref(null);
+const successresponseMessage = ref(null);
 const name_el = ref(null);
 const name_el_error = ref(false);
 const email_el = ref(null);
@@ -225,15 +241,32 @@ const submitHandler = async (e) => {
     subject_el_error.value ||
     message_el_error.value
   ) {
-    console.log("validation failed")
+    console.log("validation failed");
     return;
-}
-console.log("validation passed")
-  const response = await useFetch("/api/contact", {
-    method: "post",
-    body: { ...formInputs },
-  });
-  console.log("resdata: " + JSON.stringify(response), response.data.value);
+  }
+  const { data, pending, error, refresh, status } = await useFetch(
+    "/api/contact",
+    {
+      method: "post",
+      body: { ...formInputs },
+    }
+  );
+  console.log("from error", error.value, data.value, "status: ", status.value);
+  if (status.value == "success") {
+    console.log(data.value.message);
+    successresponseMessage.value = data.value.message;
+
+    formInputs.name = "";
+    formInputs.email = "";
+    formInputs.phone = "";
+    formInputs.subject = "";
+    formInputs.message = "";
+  } else {
+    console.log("from error", error);
+    console.log(error.value.statusCode);
+    errorresponse.value =
+      error.value.statusCode + " " + error.value.statusMessage;
+  }
 };
 
 const removeNameError = () => {

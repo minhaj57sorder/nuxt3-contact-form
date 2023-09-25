@@ -14,9 +14,9 @@ export default defineEventHandler(async (event) => {
     data.message !== ''
   ) {
     setResponseStatus(event, 202)
-    return ({ "message: ": "Thank for submitting message. we will contact you soon." })
+    return ({ "message": "Thank for submitting message. we will contact you soon." })
   } else {
     setResponseStatus(event, 400)
-    return ({ "message: ": "Some data is missing." })
+    return ({ "message": "Some data is missing." })
   }
 })
