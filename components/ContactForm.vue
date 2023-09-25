@@ -1,5 +1,7 @@
 <template>
-  <div class="px-6 py-6 lg:px-8 border border-cyan-700 shadow-xl bg-cyan-800/10 rounded-lg backdrop-blur-[10px]">
+  <div
+    class="px-6 py-6 lg:px-8 border border-cyan-700 shadow-xl bg-cyan-800/10 rounded-lg backdrop-blur-[10px]"
+  >
     <form @submit="submitHandler">
       <div class="mb-6">
         <label
@@ -74,7 +76,12 @@
           placeholder="+8801823456712"
         /> -->
         <div
-          :class="[phone_el_error ? 'border-red-600' : '', telephone_input_focused? 'border-cyan-500 telephone-focus' : 'border-gray-300']"
+          :class="[
+            phone_el_error ? 'border-red-600' : '',
+            telephone_input_focused
+              ? 'border-cyan-500 telephone-focus'
+              : 'border-gray-300',
+          ]"
           class="bg-gray-50 border input-focus transition-all text-gray-900 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1"
         >
           <vue-tel-input
@@ -88,7 +95,8 @@
           ></vue-tel-input>
         </div>
         <p v-if="phone_el_error" class="mt-2 text-sm text-red-600">
-          <span class="font-medium">Oops!</span> Please enter phone number this is required feild!
+          <span class="font-medium">Oops!</span> Please enter phone number this
+          is required feild!
         </p>
         <p v-else-if="is_valid_phone_error" class="mt-2 text-sm text-red-600">
           <span class="font-medium">Oops!</span> Your entered number dose not
@@ -178,7 +186,7 @@ const formInputs = reactive({
   subject: "",
   message: "",
 });
-const submitHandler = (e) => {
+const submitHandler = async (e) => {
   e.preventDefault();
   if (required(formInputs.name)) {
     // set error true if feild is empty
@@ -196,8 +204,8 @@ const submitHandler = (e) => {
   if (required(formInputs.phone)) {
     // set error true if feild is empty
     phone_el_error.value = true;
-  }else{
-    is_valid_phone_error.value = !is_valid_phone.value
+  } else {
+    is_valid_phone_error.value = !is_valid_phone.value;
   }
   if (required(formInputs.subject)) {
     // set error true if feild is empty
@@ -207,7 +215,25 @@ const submitHandler = (e) => {
     // set error true if feild is empty
     message_el_error.value = true;
   }
-  console.log("client side", formInputs);
+
+  if (
+    name_el_error.value ||
+    email_el_required_error.value ||
+    email_el_error.value ||
+    phone_el_error.value ||
+    is_valid_phone_error.value ||
+    subject_el_error.value ||
+    message_el_error.value
+  ) {
+    console.log("validation failed")
+    return;
+}
+console.log("validation passed")
+  const response = await useFetch("/api/contact", {
+    method: "post",
+    body: { ...formInputs },
+  });
+  console.log("resdata: " + JSON.stringify(response), response.data.value);
 };
 
 const removeNameError = () => {
@@ -228,43 +254,46 @@ const removeMessageError = () => {
   message_el_error.value = false;
 };
 const focusTelephoneInput = () => {
-    console.log("telephone focus")
+  console.log("telephone focus");
   telephone_input_focused.value = true;
 };
 const focusRemoveTelephoneInput = () => {
   telephone_input_focused.value = false;
 };
 const validatePHoneNumber = (status) => {
-    is_valid_phone.value = status.valid
-    console.log(status.valid)
+  is_valid_phone.value = status.valid;
+  console.log(status.valid);
 };
 </script>
 <style>
 .vue-tel-input {
   border: none !important;
 }
-.vti__input,.vti__input:focus, .vti__dropdown, .vti__dropdown:focus {
+.vti__input,
+.vti__input:focus,
+.vti__dropdown,
+.vti__dropdown:focus {
   background-color: transparent !important;
   background: transparent !important;
 }
 .vue-tel-input:focus-within {
-    box-shadow: none;
-    border-color: transparent;
+  box-shadow: none;
+  border-color: transparent;
 }
-.input-focus:focus{
-    box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
-    animation: focusInputAnimation 0.3s ease-out 0s 1 forwards;
+.input-focus:focus {
+  box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
+  animation: focusInputAnimation 0.3s ease-out 0s 1 forwards;
 }
-.telephone-focus{
-    box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
-    animation: focusInputAnimation 0.3s ease-out 0s 1 forwards;
+.telephone-focus {
+  box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
+  animation: focusInputAnimation 0.3s ease-out 0s 1 forwards;
 }
 @keyframes focusInputAnimation {
-    form{
-        box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
-    }
-    to{
-        box-shadow: 0px 0px 0px 1px rgb(14, 116, 114, 0.1);
-    }
+  form {
+    box-shadow: 0px 0px 0px 5px rgb(14, 116, 114, 0.1);
+  }
+  to {
+    box-shadow: 0px 0px 0px 1px rgb(14, 116, 114, 0.1);
+  }
 }
 </style>
